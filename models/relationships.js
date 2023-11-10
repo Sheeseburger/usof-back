@@ -1,7 +1,7 @@
-const { User, ResetPwdToken } = require('./userModel');
-const Post = require('./postModel');
-const Category = require('./categoryModel');
-const PostCategory = require('./postCategoryModel');
+import { User, ResetPwdToken } from './userModel.js';
+import Post from './postModel.js';
+import Category from './categoryModel.js';
+import PostCategory from './postCategoryModel.js';
 
 User.hasOne(ResetPwdToken, {
     foreignKey: 'user_id',

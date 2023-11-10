@@ -1,5 +1,5 @@
-const sequelize = require('../db');
+import sequelize from '../db.js';
 
 const PostCategory = sequelize.define('PostCategory', {});
 
-module.exports = PostCategory;
+export default PostCategory;

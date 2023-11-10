@@ -1,14 +1,12 @@
-// post.js
-
-const { Sequelize } = require('sequelize');
-const sequelize = require('../db');
+import { DataTypes } from 'sequelize';
+import sequelize from '../db.js';
 
 const Post = sequelize.define('Post', {
-    author: Sequelize.STRING,
-    title: Sequelize.STRING,
-    publishDate: Sequelize.DATE,
-    status: Sequelize.ENUM('active', 'inactive'),
-    content: Sequelize.TEXT,
+    author: DataTypes.STRING,
+    title: DataTypes.STRING,
+    publishDate: DataTypes.DATE,
+    status: DataTypes.ENUM('active', 'inactive'),
+    content: DataTypes.TEXT,
 });
 
-module.exports = Post;
+export default Post;

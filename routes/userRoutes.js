@@ -1,13 +1,13 @@
-const express = require('express');
+import express from 'express';
+import * as userController from '../controllers/userController.js';
+import * as authController from '../controllers/authController.js';
 
-const userController = require('../controllers/userController');
-const authController = require('../controllers/authController');
 const router = express.Router();
 
 router.get('/', userController.getAllUsers);
 router.get('/:user_id', userController.getUserById);
 
-router.use(authController.protected);
+router.use(authController.protect);
 
 router.patch('/avatar', userController.uploadAvatar);
 
@@ -17,4 +17,5 @@ router
     .route('/:user_id')
     .patch(userController.updateUser)
     .delete(userController.deleteUser);
-module.exports = router;
+
+export default router;

@@ -1,4 +1,4 @@
-const Sequelize = require('sequelize');
+import { Sequelize } from 'sequelize';
 
 const sequelize = new Sequelize('usof', 'monyshchen', 'securepass', {
     host: 'localhost',
@@ -6,8 +6,8 @@ const sequelize = new Sequelize('usof', 'monyshchen', 'securepass', {
 });
 
 sequelize
-    .sync({ alter: true })
-    // .authenticate()
+    // .sync({ alter: true })
+    .authenticate()
     .then(() => {
         console.log('Database connection has been established successfully.');
         // addStarWarsCards();
@@ -15,4 +15,5 @@ sequelize
     .catch((error) => {
         console.error('Unable to connect to the database:', error);
     });
-module.exports = sequelize;
+
+export default sequelize;

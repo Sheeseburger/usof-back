@@ -1,14 +1,12 @@
-// const bcrypt = require('bcrypt');
-const { promisify } = require('util');
+import { promisify } from 'util';
+import jwt from 'jsonwebtoken';
+import nodemailer from 'nodemailer';
+import crypto from 'crypto';
+import { Op } from 'sequelize';
 
-const jwt = require('jsonwebtoken');
-const nodemailer = require('nodemailer');
-const crypto = require('crypto');
-const { Op } = require('sequelize');
-
-const { User, ResetPwdToken } = require('../models/userModel');
-const AppError = require('../utils/appError');
-const catchAsync = require('../utils/catchAsync');
+import { User, ResetPwdToken } from '../models/userModel.js';
+import AppError from '../utils/appError.js';
+import catchAsync from '../utils/catchAsync.js';
 
 const signToken = (id) => {
     return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -35,7 +33,7 @@ const createSendToken = (user, statusCode, res) => {
     });
 };
 
-exports.register = catchAsync(async (req, res) => {
+export const register = catchAsync(async (req, res) => {
     const user = await User.findOne({ where: { email: req.body.email } });
     if (user) {
         return res.status(400).json({ message: 'Email is already registered' });
@@ -50,8 +48,7 @@ exports.register = catchAsync(async (req, res) => {
     createSendToken(newUser, 201, res);
 });
 
-exports.login = catchAsync(async (req, res) => {
-    // maybe ADD email check when login
+export const login = catchAsync(async (req, res) => {
     const { login, password } = req.body;
 
     const user = await User.findOne({
@@ -64,7 +61,7 @@ exports.login = catchAsync(async (req, res) => {
     createSendToken(user, 200, res);
 });
 
-exports.logout = (req, res) => {
+export const logout = (req, res) => {
     try {
         res.clearCookie('jwt');
         res.status(200).json({ message: 'Logged out successfully' });
@@ -73,7 +70,7 @@ exports.logout = (req, res) => {
     }
 };
 
-exports.sendPasswordResetEmail = catchAsync(async (req, res) => {
+export const sendPasswordResetEmail = catchAsync(async (req, res) => {
     const { email } = req.body;
 
     let user = await User.findOne({ where: { email } });
@@ -120,7 +117,7 @@ exports.sendPasswordResetEmail = catchAsync(async (req, res) => {
     });
 });
 
-exports.confirmPasswordReset = catchAsync(async (req, res, next) => {
+export const confirmPasswordReset = catchAsync(async (req, res, next) => {
     const resetToken = await ResetPwdToken.findOne({
         where: {
             reset_token: req.params.confirm_token,
@@ -142,7 +139,7 @@ exports.confirmPasswordReset = catchAsync(async (req, res, next) => {
     createSendToken(user, 201, res);
 });
 
-exports.restrictTo = (...roles) => {
+export const restrictTo = (...roles) => {
     return (req, res, next) => {
         if (!roles.includes(req.user.role)) {
             return next(new AppError('You dont have permision :(', 403));
@@ -151,7 +148,7 @@ exports.restrictTo = (...roles) => {
     };
 };
 
-exports.protected = catchAsync(async (req, res, next) => {
+export const protect = catchAsync(async (req, res, next) => {
     if (req.headers.cookie && req.headers.cookie.search(/authorization/) >= 0) {
         req.headers['authorization'] = req.headers.cookie
             .slice(req.headers.cookie.search('authorization'))

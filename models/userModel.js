@@ -1,7 +1,6 @@
-const Sequelize = require('sequelize');
-const bcrypt = require('bcrypt');
-
-const sequelize = require('./../db');
+import Sequelize from 'sequelize';
+import bcrypt from 'bcrypt';
+import sequelize from './../db.js';
 
 const User = sequelize.define('User', {
     login: {
@@ -72,4 +71,4 @@ const ResetPwdToken = sequelize.define('resetPwdToken', {
     },
 });
 
-module.exports = { User, ResetPwdToken };
+export { User, ResetPwdToken };

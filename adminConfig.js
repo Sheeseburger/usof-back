@@ -1,17 +1,18 @@
-const AdminJS = require('adminjs');
-const AdminJSExpress = require('@adminjs/express');
-const AdminJSSequelize = require('@adminjs/sequelize');
+import AdminJS from 'adminjs';
+import AdminJSExpress from '@adminjs/express';
+import * as AdminJSSequelize from '@adminjs/sequelize';
 
-const { User, ResetPwdToken } = require('./models/userModel');
-const Post = require('./models/postModel');
-const Category = require('./models/categoryModel');
-const PostCategory = require('./models/postCategoryModel');
-require('./models/relationships');
+import { User, ResetPwdToken } from './models/userModel.js';
+import Post from './models/postModel.js';
+import Category from './models/categoryModel.js';
+import PostCategory from './models/postCategoryModel.js';
+import './models/relationships.js';
 
 AdminJS.registerAdapter({
     Resource: AdminJSSequelize.Resource,
     Database: AdminJSSequelize.Database,
 });
+
 const DEFAULT_ADMIN = {
     email: 'admin@gmail.com',
     password: '123123',
@@ -29,8 +30,36 @@ const authenticate = async (email, password) => {
     }
     return null;
 };
+const validate = (request, context) => {
+    console.log('HEL');
+    if (request.method != 'post') return request;
+    console.log('HELLLLLLLLLLLLLLLLLLLLLLLLLLLL');
+    return request;
+};
 const admin = new AdminJS({
-    resources: [User, ResetPwdToken, Post, Category, PostCategory],
+    resources: [
+        User,
+        ResetPwdToken,
+        {
+            resource: Post,
+            options: {
+                properties: {
+                    categories: {
+                        type: 'reference',
+                        reference: 'Categories',
+                        isArray: true,
+                    },
+                },
+                actions: {
+                    new: {
+                        before: [validate],
+                    },
+                },
+            },
+        },
+        Category,
+        PostCategory,
+    ],
 });
 
 const adminRouter = AdminJSExpress.buildAuthenticatedRouter(
@@ -43,4 +72,4 @@ const adminRouter = AdminJSExpress.buildAuthenticatedRouter(
     null
 );
 
-module.exports = adminRouter;
+export default adminRouter;
