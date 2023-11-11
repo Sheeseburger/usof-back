@@ -22,15 +22,54 @@ const authenticate = async (email, password) => {
         return Promise.resolve(DEFAULT_ADMIN);
     } else {
         const user = await User.findOne({ where: { email, role: 'admin' } });
-        console.log(await user.verifyPassword(password));
+        console.log(await user.verifyPassword(password), password);
         if (user && (await user.verifyPassword(password))) {
             return Promise.resolve({ email, password });
         }
     }
     return null;
 };
+
+const createRelation = async (request) => {
+    if (request.record.params) {
+        const { id: PostId } = request.record.params;
+
+        for (const key in request.record.params) {
+            if (key.startsWith('categories.')) {
+                const CategoryId = request.record.params[key];
+                const post = await Post.findByPk(PostId);
+                await post.addCategory(CategoryId);
+            }
+        }
+    }
+
+    return request;
+};
+
 const admin = new AdminJS({
-    resources: [User, ResetPwdToken, Post, Category, PostCategory],
+    resources: [
+        User,
+        ResetPwdToken,
+        {
+            resource: Post,
+            options: {
+                properties: {
+                    categories: {
+                        type: 'reference',
+                        reference: 'Categories',
+                        isArray: true,
+                    },
+                },
+                actions: {
+                    new: {
+                        after: [createRelation],
+                    },
+                },
+            },
+        },
+        Category,
+        PostCategory,
+    ],
 });
 
 const adminRouter = AdminJSExpress.buildAuthenticatedRouter(

@@ -12,6 +12,3 @@ ResetPwdToken.belongsTo(User, {
     foreignKey: 'user_id',
     as: 'user',
 });
-
-Post.belongsToMany(Category, { through: PostCategory });
-Category.belongsToMany(Post, { through: PostCategory });
