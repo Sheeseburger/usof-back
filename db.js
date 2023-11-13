@@ -6,7 +6,7 @@ const sequelize = new Sequelize('usof', 'monyshchen', 'securepass', {
 });
 
 sequelize
-    // .sync({ alter: true })
+    // .sync({ force: true })
     .authenticate()
     .then(() => {
         console.log('Database connection has been established successfully.');

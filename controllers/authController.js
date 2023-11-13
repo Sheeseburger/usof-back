@@ -6,7 +6,7 @@ const nodemailer = require('nodemailer');
 const crypto = require('crypto');
 const { Op } = require('sequelize');
 const bcrypt = require('bcrypt');
-const { User, ResetPwdToken } = require('../models/userModel');
+const { User, ResetPwdToken } = require('../models/relationships');
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
 

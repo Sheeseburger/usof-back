@@ -2,10 +2,14 @@ const AdminJS = require('adminjs');
 const AdminJSExpress = require('@adminjs/express');
 const AdminJSSequelize = require('@adminjs/sequelize');
 
-const { User, ResetPwdToken } = require('./models/userModel');
-const Post = require('./models/postModel');
-const Category = require('./models/categoryModel');
-const PostCategory = require('./models/postCategoryModel');
+const {
+    User,
+    ResetPwdToken,
+    Post,
+    Category,
+    Comment,
+    Like,
+} = require('./models/relationships');
 
 AdminJS.registerAdapter({
     Resource: AdminJSSequelize.Resource,
@@ -74,6 +78,8 @@ const admin = new AdminJS({
             },
         },
         Category,
+        Comment,
+        Like,
     ],
 });
 

@@ -6,6 +6,8 @@ const app = express();
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
 const postRoutes = require('./routes/postRoutes');
+const categoryRoutes = require('./routes/categoryRoutes');
+
 require('./models/relationships');
 const AdminRoutes = require('./adminConfig');
 
@@ -21,6 +23,7 @@ app.use('/img', express.static(path.join(__dirname, 'public/uploads')));
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/posts', postRoutes);
+app.use('/api/categories', categoryRoutes);
 app.use('/admin', AdminRoutes);
 
 // app.all('*', (req, res, next) => {

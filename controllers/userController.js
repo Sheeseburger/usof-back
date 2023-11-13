@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const upload = require('../multerCfg');
 
-const { User } = require('../models/userModel');
+const { User } = require('../models/relationships');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const factory = require('./factoryController');

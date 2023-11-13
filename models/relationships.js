@@ -1,9 +1,9 @@
 const { User, ResetPwdToken } = require('./userModel');
 const Post = require('./postModel');
 const Category = require('./categoryModel');
-const PostCategory = require('./postCategoryModel');
 const Comment = require('./commentModel');
 const Like = require('./likeModel');
+
 User.hasOne(ResetPwdToken, {
     foreignKey: 'user_id',
     as: 'resetPwdToken',
@@ -35,3 +35,5 @@ Comment.hasMany(Like, { foreignKey: 'commentId' });
 
 Like.belongsTo(Post, { foreignKey: 'postId' });
 Post.hasMany(Like, { foreignKey: 'postId' });
+
+module.exports = { User, ResetPwdToken, Post, Comment, Like, Category };

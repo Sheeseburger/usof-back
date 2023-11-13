@@ -3,7 +3,7 @@ const catchAsync = require('./../utils/catchAsync');
 exports.getAll = (Model, options) =>
     catchAsync(async (req, res, next) => {
         let document = {};
-        if (options.likes) {
+        if (options && options.likes) {
             document = await Model.findAll({
                 where: { postId: req.params.post_id },
             });
@@ -17,11 +17,12 @@ exports.getAll = (Model, options) =>
 
 exports.getById = (Model) =>
     catchAsync(async (req, res, next) => {
+        console.log(req.params);
         const document = await Model.findByPk(
-            req.params.user_id || req.params.post_id
+            req.params.user_id || req.params.post_id || req.params.category_id
         );
         if (!document) {
-            res.status(400).json({
+            return res.status(400).json({
                 status: 'fail',
                 data: 'No document with this id',
             });
@@ -32,7 +33,7 @@ exports.getById = (Model) =>
 exports.deleteOne = (Model) =>
     catchAsync(async (req, res, next) => {
         const document = await Model.findByPk(
-            req.params.user_id || req.params.post_id
+            req.params.user_id || req.params.post_id || req.params.category_id
         );
         if (!document) {
             return next(new AppError('document not found', 404));
