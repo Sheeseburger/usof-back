@@ -22,6 +22,7 @@ const authenticate = async (email, password) => {
         return Promise.resolve(DEFAULT_ADMIN);
     } else {
         const user = await User.findOne({ where: { email, role: 'admin' } });
+        console.log(user);
         console.log(await user.verifyPassword(password), password);
         if (user && (await user.verifyPassword(password))) {
             return Promise.resolve({ email, password });
@@ -32,12 +33,13 @@ const authenticate = async (email, password) => {
 
 const createRelation = async (request) => {
     if (request.record.params) {
-        const { id: PostId } = request.record.params;
-
+        const { id } = request.record.params;
+        console.log(request.record.params);
         for (const key in request.record.params) {
             if (key.startsWith('categories.')) {
                 const CategoryId = request.record.params[key];
-                const post = await Post.findByPk(PostId);
+                const post = await Post.findByPk(id);
+                console.log(id, CategoryId);
                 await post.addCategory(CategoryId);
             }
         }
@@ -59,7 +61,12 @@ const admin = new AdminJS({
                         reference: 'Categories',
                         isArray: true,
                     },
+                    authorId: {
+                        show: false,
+                        edit: false,
+                    },
                 },
+
                 actions: {
                     new: {
                         after: [createRelation],

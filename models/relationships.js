@@ -12,3 +12,5 @@ ResetPwdToken.belongsTo(User, {
     foreignKey: 'user_id',
     as: 'user',
 });
+
+Post.belongsTo(User, { foreignKey: 'authorId', as: 'author' });
