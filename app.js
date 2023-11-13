@@ -6,6 +6,7 @@ const app = express();
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
 const postRoutes = require('./routes/postRoutes');
+const commentRoutes = require('./routes/commentRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
 
 require('./models/relationships');
@@ -24,6 +25,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/posts', postRoutes);
 app.use('/api/categories', categoryRoutes);
+app.use('/api/comments', commentRoutes);
 app.use('/admin', AdminRoutes);
 
 // app.all('*', (req, res, next) => {
