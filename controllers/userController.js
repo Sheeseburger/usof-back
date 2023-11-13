@@ -5,24 +5,11 @@ const upload = require('../multerCfg');
 const { User } = require('../models/userModel');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
+const factory = require('./factoryController');
 
-exports.getAllUsers = catchAsync(async (req, res, next) => {
-    const users = await User.findAll();
-    res.status(200).json({
-        status: 'success',
-        amount: users.length,
-        data: users,
-    });
-});
+exports.getAllUsers = factory.getAll(User);
 
-exports.getUserById = catchAsync(async (req, res, next) => {
-    console.log(req.params);
-    const user = await User.findByPk(req.params.user_id);
-    if (!user) {
-        res.status(400).json({ status: 'fail', data: 'No user with this id' });
-    }
-    res.status(200).json({ status: 'success', data: user });
-});
+exports.getUserById = factory.getById(User);
 
 exports.createUser = catchAsync(async (req, res, next) => {
     if (req.body.password !== req.body.confirmPassword)

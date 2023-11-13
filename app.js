@@ -5,8 +5,10 @@ const app = express();
 
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
-const AppError = require('./utils/appError');
+const postRoutes = require('./routes/postRoutes');
 const AdminRoutes = require('./adminConfig');
+
+// const AppError = require('./utils/appError');
 // Middleweare
 
 app.use(express.json({ limit: '10kb' }));
@@ -17,6 +19,7 @@ app.use('/img', express.static(path.join(__dirname, 'public/uploads')));
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/posts', postRoutes);
 app.use('/admin', AdminRoutes);
 
 // app.all('*', (req, res, next) => {
