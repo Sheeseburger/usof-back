@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
 const { Op } = require('sequelize');
-
+const bcrypt = require('bcrypt');
 const { User, ResetPwdToken } = require('../models/userModel');
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
@@ -53,12 +53,15 @@ exports.register = catchAsync(async (req, res) => {
 exports.login = catchAsync(async (req, res) => {
     // maybe ADD email check when login
     const { login, password } = req.body;
+    console.log(login, password);
 
     const user = await User.findOne({
         where: {
             login,
         },
     });
+    console.log(await bcrypt.compare(password, user.password));
+    console.log(await user.verifyPassword(password));
     if (!user || !(await user.verifyPassword(password)))
         return res.status(401).json({ message: 'Invalid credentials' });
     createSendToken(user, 200, res);
@@ -127,7 +130,6 @@ exports.confirmPasswordReset = catchAsync(async (req, res, next) => {
             passwordResetExpires: { [Op.gt]: new Date() },
         },
     });
-    console.log(resetToken);
     if (!resetToken) {
         return next(new AppError('Token is invalid or has expired', 400));
     }

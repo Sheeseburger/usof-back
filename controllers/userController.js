@@ -46,13 +46,4 @@ exports.updateUser = catchAsync(async (req, res, next) => {
     });
 });
 
-exports.deleteUser = catchAsync(async (req, res, next) => {
-    const user = await User.findByPk(req.params.user_id);
-    if (!user) {
-        return next(new AppError('User not found', 404));
-    }
-
-    await user.destroy();
-
-    res.status(204).json();
-});
+exports.deleteUser = factory.deleteOne(User);

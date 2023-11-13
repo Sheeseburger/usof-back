@@ -6,7 +6,6 @@ const { User, ResetPwdToken } = require('./models/userModel');
 const Post = require('./models/postModel');
 const Category = require('./models/categoryModel');
 const PostCategory = require('./models/postCategoryModel');
-require('./models/relationships');
 
 AdminJS.registerAdapter({
     Resource: AdminJSSequelize.Resource,
@@ -75,7 +74,6 @@ const admin = new AdminJS({
             },
         },
         Category,
-        PostCategory,
     ],
 });
 

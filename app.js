@@ -6,6 +6,7 @@ const app = express();
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
 const postRoutes = require('./routes/postRoutes');
+require('./models/relationships');
 const AdminRoutes = require('./adminConfig');
 
 // const AppError = require('./utils/appError');

@@ -1,8 +1,13 @@
 const catchAsync = require('./../utils/catchAsync');
 
-exports.getAll = (Model) =>
+exports.getAll = (Model, options) =>
     catchAsync(async (req, res, next) => {
-        const document = await Model.findAll();
+        let document = {};
+        if (options.likes) {
+            document = await Model.findAll({
+                where: { postId: req.params.post_id },
+            });
+        } else document = await Model.findAll();
         res.status(200).json({
             status: 'success',
             amount: document.length,
@@ -22,4 +27,18 @@ exports.getById = (Model) =>
             });
         }
         res.status(200).json({ status: 'success', data: document });
+    });
+
+exports.deleteOne = (Model) =>
+    catchAsync(async (req, res, next) => {
+        const document = await Model.findByPk(
+            req.params.user_id || req.params.post_id
+        );
+        if (!document) {
+            return next(new AppError('document not found', 404));
+        }
+
+        await document.destroy();
+
+        res.status(204).json();
     });
