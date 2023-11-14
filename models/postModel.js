@@ -22,6 +22,7 @@ const Post = sequelize.define('Post', {
     status: {
         type: DataTypes.ENUM('active', 'inactive'),
         allowNull: false,
+        default: 'active',
     },
     content: {
         type: DataTypes.TEXT,

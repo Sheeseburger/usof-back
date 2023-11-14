@@ -1,5 +1,6 @@
 const catchAsync = require('./../utils/catchAsync');
 const AppError = require('../utils/appError');
+
 exports.getAll = (Model, options) =>
     catchAsync(async (req, res, next) => {
         let document = {};
@@ -10,7 +11,7 @@ exports.getAll = (Model, options) =>
         } else document = await Model.findAll();
         res.status(200).json({
             status: 'success',
-            amount: document.length,
+            amount: (document || []).length,
             data: document,
         });
     });

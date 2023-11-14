@@ -1,3 +1,5 @@
+const { Op } = require('sequelize');
+const sequelize = require('../db');
 const { Post, Comment, Category, Like } = require('../models/relationships');
 
 const AppError = require('../utils/appError');
@@ -5,7 +7,53 @@ const catchAsync = require('../utils/catchAsync');
 
 const factory = require('./factoryController');
 
-exports.getAllPosts = factory.getAll(Post);
+exports.getAllPosts = catchAsync(async (req, res, next) => {
+    const sortBy = req.query.sortBy || 'likes';
+    const sortOrder = req.query.sortOrder || 'desc';
+
+    const { category, status } = req.query;
+    const whereClause = {};
+    if (category) whereClause.categoryId = category;
+
+    let startDate = req.query.startDate || new Date('1970-01-01');
+    let endDate = req.query.endDate ? new Date(req.query.endDate) : new Date();
+
+    whereClause.updatedAt = {
+        [Op.between]: [startDate, endDate],
+    };
+
+    if (req.query.status) whereClause.status = req.query.status;
+
+    if (category) whereClause.categoryId = category;
+
+    const document = await Post.findAll({
+        where: whereClause,
+        include: [
+            {
+                model: Like,
+                attributes: [],
+            },
+        ],
+        attributes: {
+            include: [
+                [
+                    sequelize.literal(
+                        '(SELECT COUNT(*) FROM Likes WHERE Likes.postId = Post.id)'
+                    ),
+                    'likeCount',
+                ],
+            ],
+        },
+        order: [[sortBy === 'likes' ? 'likeCount' : sortBy, sortOrder]],
+        group: ['Post.id'],
+    });
+
+    res.status(200).json({
+        status: 'success',
+        amount: (document || []).length,
+        data: document,
+    });
+});
 exports.getPostById = factory.getById(Post);
 
 exports.getAllComments = catchAsync(async (req, res, next) => {
@@ -52,9 +100,10 @@ exports.getAllLikes = factory.getAll(Like, { likes: true });
 
 exports.createPost = catchAsync(async (req, res, next) => {
     const post = await Post.create({
-        title,
-        content,
+        title: req.body.title,
+        content: req.body.content,
         authorId: req.user.id,
+        status: req.body.status,
     });
 
     if (req.body.categories && req.body.categories.length > 0) {
@@ -67,7 +116,7 @@ exports.createPost = catchAsync(async (req, res, next) => {
 exports.createLike = catchAsync(async (req, res, next) => {
     const otherLikes = await Like.findAll({
         where: {
-            authrId: req.user.id,
+            authorId: req.user.id,
             postId: req.params.post_id,
         },
     });
