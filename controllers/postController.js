@@ -11,9 +11,8 @@ exports.getAllPosts = catchAsync(async (req, res, next) => {
     const sortBy = req.query.sortBy || 'likes';
     const sortOrder = req.query.sortOrder || 'desc';
 
-    const { category, status } = req.query;
+    const { category } = req.query;
     const whereClause = {};
-    if (category) whereClause.categoryId = category;
 
     let startDate = req.query.startDate || new Date('1970-01-01');
     let endDate = req.query.endDate ? new Date(req.query.endDate) : new Date();
@@ -23,9 +22,12 @@ exports.getAllPosts = catchAsync(async (req, res, next) => {
     };
 
     if (req.query.status) whereClause.status = req.query.status;
-
-    if (category) whereClause.categoryId = category;
-
+    let categoryIncluder = {
+        model: Category,
+        attributes: ['id', 'title', 'description'],
+    };
+    if (category) categoryIncluder.where = { id: category };
+    console.log(categoryIncluder);
     const document = await Post.findAll({
         where: whereClause,
         include: [
@@ -33,6 +35,7 @@ exports.getAllPosts = catchAsync(async (req, res, next) => {
                 model: Like,
                 attributes: [],
             },
+            categoryIncluder,
         ],
         attributes: {
             include: [
@@ -45,7 +48,7 @@ exports.getAllPosts = catchAsync(async (req, res, next) => {
             ],
         },
         order: [[sortBy === 'likes' ? 'likeCount' : sortBy, sortOrder]],
-        group: ['Post.id'],
+        group: ['Post.id', 'Categories.id'],
     });
 
     res.status(200).json({
