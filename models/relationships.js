@@ -3,7 +3,7 @@ const Post = require('./postModel');
 const Category = require('./categoryModel');
 const Comment = require('./commentModel');
 const Like = require('./likeModel');
-
+const PostCategory = require('./postCategoryModel');
 User.hasOne(ResetPwdToken, {
     foreignKey: 'user_id',
     as: 'resetPwdToken',
@@ -16,9 +16,9 @@ ResetPwdToken.belongsTo(User, {
 
 Post.belongsTo(User, { foreignKey: 'authorId', as: 'author' });
 
-Post.belongsToMany(Category, { through: 'PostCategory' });
+Post.belongsToMany(Category, { through: PostCategory });
 Category.belongsToMany(Post, {
-    through: 'PostCategory',
+    through: PostCategory,
 });
 
 Comment.belongsTo(User, { foreignKey: 'authorId' });
@@ -36,4 +36,12 @@ Comment.hasMany(Like, { foreignKey: 'commentId' });
 Like.belongsTo(Post, { foreignKey: 'postId' });
 Post.hasMany(Like, { foreignKey: 'postId' });
 
-module.exports = { User, ResetPwdToken, Post, Comment, Like, Category };
+module.exports = {
+    User,
+    ResetPwdToken,
+    Post,
+    Comment,
+    Like,
+    Category,
+    PostCategory,
+};

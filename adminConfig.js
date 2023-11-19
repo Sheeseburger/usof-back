@@ -1,6 +1,7 @@
 const AdminJS = require('adminjs');
 const AdminJSExpress = require('@adminjs/express');
 const AdminJSSequelize = require('@adminjs/sequelize');
+const uploadFeature = require('@adminjs/upload');
 
 const {
     User,
@@ -9,6 +10,7 @@ const {
     Category,
     Comment,
     Like,
+    PostCategory,
 } = require('./models/relationships');
 
 AdminJS.registerAdapter({
@@ -51,6 +53,13 @@ const createRelation = async (request) => {
     return request;
 };
 
+const localProvider = {
+    bucket: 'public/uploads',
+    opts: {
+        baseUrl: '/files',
+    },
+};
+
 const admin = new AdminJS({
     resources: [
         User,
@@ -63,6 +72,35 @@ const admin = new AdminJS({
                         type: 'reference',
                         reference: 'Categories',
                         isArray: true,
+                        isVisible: {
+                            edit: true,
+                            show: true,
+                            list: false,
+                            filter: false,
+                        },
+                    },
+                    comments: {
+                        type: 'reference',
+                        reference: 'Comments',
+                        isArray: true,
+                        isVisible: {
+                            edit: false,
+                            show: true,
+                            list: false,
+                            filter: false,
+                        },
+                    },
+                    likes: {
+                        type: 'reference',
+                        reference: 'Likes',
+                        isArray: true,
+                        edit: false,
+                        isVisible: {
+                            edit: false,
+                            show: true,
+                            list: false,
+                            filter: false,
+                        },
                     },
                     authorId: {
                         show: false,
@@ -80,6 +118,21 @@ const admin = new AdminJS({
         Category,
         Comment,
         Like,
+        {
+            resource: PostCategory,
+            options: {
+                properties: {
+                    categories: {
+                        type: 'reference',
+                        reference: 'Categories',
+                    },
+                    posts: {
+                        type: 'reference',
+                        reference: 'Posts',
+                    },
+                },
+            },
+        },
     ],
 });
 

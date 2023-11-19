@@ -22,7 +22,6 @@ exports.uploadAvatar = catchAsync(async (req, res, next) => {
     upload.single('avatar')(req, res, async (err) => {
         if (err)
             return next(new AppError('Error uploading image: ' + err, 400));
-
         const imageUrl = path.join('public/uploads/', req.file.filename);
 
         const user = req.user;
