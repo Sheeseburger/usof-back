@@ -91,28 +91,30 @@ exports.sendPasswordResetEmail = catchAsync(async (req, res) => {
         passwordResetExpires: new Date(Date.now() + 5 * 60 * 1000),
         user_id: user.id,
     });
-
     const resetURL = `${req.protocol}://${req.get(
         'host'
     )}/api/auth/password-reset/${resetToken}`;
-    const message = `Forgot your password? Submit a patch request with your new password to: ${resetURL}`;
+    console.log(user.email);
+    const message = `Forgot your password? Submit a patch request with your new password to: ${resetURL}">${resetURL}</a>`;
 
     const transporter = nodemailer.createTransport({
-        host: 'smtp.ethereal.email',
-        port: 587,
+        service: 'gmail',
         auth: {
-            user: 'miracle.lang8@ethereal.email',
-            pass: 'wzf3rZutfKH3U7dwJy',
+            type: 'OAuth2',
+            user: process.env.USER_GMAIL,
+            pass: process.env.PASSWORD_GMAIL,
+            clientId: process.env.CLIENT_ID,
+            clientSecret: process.env.CLIENT_SECRET,
+            refreshToken: process.env.REFRESH_TOKEN,
         },
     });
-
     const mailOptions = {
-        from: 'kekymber@gmail.com',
+        from: process.env.USER_GMAIL,
         to: user.email,
         subject: 'Password Reset (5 minutes)',
         text: message,
+        html: `<a href=${resetURL}>${resetURL}</a>`,
     };
-
     await transporter.sendMail(mailOptions);
 
     res.status(200).json({
@@ -151,37 +153,56 @@ exports.restrictTo = (...roles) => {
     };
 };
 
-exports.protected = (skipAuth = false) =>
-    catchAsync(async (req, res, next) => {
-        if (
-            req.headers.cookie &&
-            req.headers.cookie.search(/authorization/) >= 0
-        ) {
-            req.headers['authorization'] = req.headers.cookie
-                .slice(req.headers.cookie.search('authorization'))
-                .replace('authorization=', '');
-        }
-        let token;
-        if (
-            req.headers.authorization &&
-            req.headers.authorization.startsWith('Bearer')
-        )
-            token = req.headers.authorization.split(' ')[1];
+exports.protected = catchAsync(async (req, res, next) => {
+    if (req.headers.cookie && req.headers.cookie.search(/authorization/) >= 0) {
+        req.headers['authorization'] = req.headers.cookie
+            .slice(req.headers.cookie.search('authorization'))
+            .replace('authorization=', '');
+    }
+    let token;
+    if (
+        req.headers.authorization &&
+        req.headers.authorization.startsWith('Bearer')
+    )
+        token = req.headers.authorization.split(' ')[1];
 
-        if (!token && !skipAuth) {
-            return next(new AppError('You are not logged in', 401));
-        }
+    if (!token) {
+        return next(new AppError('You are not logged in', 401));
+    }
+    const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
 
-        const decoded = await promisify(jwt.verify)(
-            token,
-            process.env.JWT_SECRET
-        );
+    const freshUser = await User.findByPk(decoded.id);
+    if (!freshUser || !freshUser.login) {
+        return next(new AppError('This user was deleted', 401));
+    }
 
-        const freshUser = await User.findByPk(decoded.id);
-        if ((!freshUser || !freshUser.login) && !skipAuth) {
-            return next(new AppError('This user was deleted', 401));
-        }
+    req.user = freshUser;
+    next();
+});
 
-        req.user = freshUser;
-        next();
-    });
+exports.PostAllProtection = catchAsync(async (req, res, next) => {
+    if (req.headers.cookie && req.headers.cookie.search(/authorization/) >= 0) {
+        req.headers['authorization'] = req.headers.cookie
+            .slice(req.headers.cookie.search('authorization'))
+            .replace('authorization=', '');
+    }
+    let token;
+    if (
+        req.headers.authorization &&
+        req.headers.authorization.startsWith('Bearer')
+    )
+        token = req.headers.authorization.split(' ')[1];
+
+    if (!token) {
+        return next();
+    }
+    const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+
+    const freshUser = await User.findByPk(decoded.id);
+    if (!freshUser || !freshUser.login) {
+        return next(new AppError('This user was deleted', 401));
+    }
+
+    req.user = freshUser;
+    next();
+});

@@ -3,7 +3,7 @@ const express = require('express');
 const userController = require('../controllers/userController');
 const authController = require('../controllers/authController');
 const router = express.Router();
-router.use(authController.protected());
+router.use(authController.protected);
 router.get('/', userController.getAllUsers);
 router.get('/:user_id', userController.getUserById);
 

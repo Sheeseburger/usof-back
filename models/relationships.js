@@ -4,6 +4,8 @@ const Category = require('./categoryModel');
 const Comment = require('./commentModel');
 const Like = require('./likeModel');
 const PostCategory = require('./postCategoryModel');
+const Favorite = require('./favoriteModel');
+
 User.hasOne(ResetPwdToken, {
     foreignKey: 'user_id',
     as: 'resetPwdToken',
@@ -36,6 +38,9 @@ Comment.hasMany(Like, { foreignKey: 'commentId' });
 Like.belongsTo(Post, { foreignKey: 'postId' });
 Post.hasMany(Like, { foreignKey: 'postId' });
 
+User.belongsToMany(Post, { through: Favorite });
+Post.belongsToMany(User, { through: Favorite });
+
 module.exports = {
     User,
     ResetPwdToken,
@@ -44,4 +49,5 @@ module.exports = {
     Like,
     Category,
     PostCategory,
+    Favorite,
 };

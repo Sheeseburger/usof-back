@@ -4,7 +4,7 @@ const authController = require('../controllers/authController');
 
 const commentController = require('../controllers/commentController');
 const router = express.Router();
-router.use(authController.protected());
+router.use(authController.protected);
 
 router.get('/', commentController.getAllComments);
 router
