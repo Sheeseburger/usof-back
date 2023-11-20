@@ -46,12 +46,11 @@ exports.getAllPosts = catchAsync(async (req, res, next) => {
         inactivePosts = {};
         inactivePosts.status = req.query.status || 'active';
     }
-    console.group();
-    console.log(whereClause);
-    console.log(inactivePosts);
-    console.log(req.user);
-    console.group();
+
     const document = await Post.findAll({
+        // limit: pageSize,
+        // offset,
+
         where: whereClause,
         where: inactivePosts,
         include: [
@@ -74,11 +73,20 @@ exports.getAllPosts = catchAsync(async (req, res, next) => {
         order: [[sortBy === 'likes' ? 'likeCount' : sortBy, sortOrder]],
         group: ['Post.id', 'Categories.id'],
     });
+    const pageNumber = req.query.pageNumber ? req.query.pageNumber * 1 : 1;
+    const pageSize = req.query.pageSize ? req.query.pageSize * 1 : 10;
+
+    const startIndex = (pageNumber - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+
+    const paginatedPosts = document.slice(startIndex, endIndex);
 
     res.status(200).json({
         status: 'success',
-        amount: (document || []).length,
-        data: document,
+        totalPosts: (document || []).length,
+        currentPage: pageNumber,
+        pageSize,
+        data: paginatedPosts,
     });
 });
 exports.getPostById = factory.getById(Post);
