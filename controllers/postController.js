@@ -21,15 +21,39 @@ exports.getAllPosts = catchAsync(async (req, res, next) => {
         [Op.between]: [startDate, endDate],
     };
 
-    if (req.query.status) whereClause.status = req.query.status;
     let categoryIncluder = {
         model: Category,
         attributes: ['id', 'title', 'description'],
     };
+
     if (category) categoryIncluder.where = { id: category };
-    console.log(categoryIncluder);
+    let inactivePosts = { status: 'active' };
+
+    if (req.user && req.user.role != 'admin') {
+        inactivePosts = {
+            [Op.or]: [
+                { status: 'active' },
+                { status: 'inactive', authorId: req.user.id },
+            ],
+        };
+    } else if (req.user && req.user.role === 'admin') {
+        inactivePosts = {
+            [Op.or]: [{ status: 'active' }, { status: 'inactive' }],
+        };
+    }
+
+    if (req.query.status) {
+        inactivePosts = {};
+        inactivePosts.status = req.query.status || 'active';
+    }
+    console.group();
+    console.log(whereClause);
+    console.log(inactivePosts);
+    console.log(req.user);
+    console.group();
     const document = await Post.findAll({
         where: whereClause,
+        where: inactivePosts,
         include: [
             {
                 model: Like,
@@ -148,8 +172,12 @@ exports.updatePost = catchAsync(async (req, res, next) => {
             error: 'Only the creator can update the post',
         });
     }
-
-    await post.update(req.body);
+    if (!req.body.status) {
+        return res.status(400).json({
+            error: 'Only status can be changed',
+        });
+    }
+    await post.update(req.body.status);
 
     if (req.body.categories && req.body.categories.length > 0) {
         await post.setCategories(req.body.categories);

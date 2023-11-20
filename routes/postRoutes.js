@@ -7,21 +7,21 @@ const router = express.Router();
 
 router
     .route('/')
-    .get(postController.getAllPosts)
-    .post(authController.protected, postController.createPost)
-    .delete(authController.protected, postController.deletePost);
+    .get(authController.protected(true), postController.getAllPosts)
+    .post(authController.protected(), postController.createPost)
+    .delete(authController.protected(), postController.deletePost);
 
 router
     .route('/:post_id')
     .get(postController.getPostById)
-    .patch(authController.protected, postController.updatePost);
+    .patch(authController.protected(), postController.updatePost);
 
-router.use(authController.protected);
+router.use(authController.protected());
 
 router
     .route('/:post_id/comments')
     .get(postController.getAllComments)
-    .post(authController.protected, postController.createComment);
+    .post(authController.protected(), postController.createComment);
 
 router.get('/:post_id/categories', postController.getAllCategories);
 

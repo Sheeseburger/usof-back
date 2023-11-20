@@ -52,16 +52,14 @@ exports.register = catchAsync(async (req, res) => {
 
 exports.login = catchAsync(async (req, res) => {
     // maybe ADD email check when login
-    const { login, password } = req.body;
-    console.log(login, password);
+    const { login = '', password, email = '' } = req.body;
 
     const user = await User.findOne({
         where: {
-            login,
+            [Op.or]: { login, email },
         },
     });
-    console.log(await bcrypt.compare(password, user.password));
-    console.log(await user.verifyPassword(password));
+
     if (!user || !(await user.verifyPassword(password)))
         return res.status(401).json({ message: 'Invalid credentials' });
     createSendToken(user, 200, res);
@@ -153,30 +151,37 @@ exports.restrictTo = (...roles) => {
     };
 };
 
-exports.protected = catchAsync(async (req, res, next) => {
-    if (req.headers.cookie && req.headers.cookie.search(/authorization/) >= 0) {
-        req.headers['authorization'] = req.headers.cookie
-            .slice(req.headers.cookie.search('authorization'))
-            .replace('authorization=', '');
-    }
-    let token;
-    if (
-        req.headers.authorization &&
-        req.headers.authorization.startsWith('Bearer')
-    )
-        token = req.headers.authorization.split(' ')[1];
+exports.protected = (skipAuth = false) =>
+    catchAsync(async (req, res, next) => {
+        if (
+            req.headers.cookie &&
+            req.headers.cookie.search(/authorization/) >= 0
+        ) {
+            req.headers['authorization'] = req.headers.cookie
+                .slice(req.headers.cookie.search('authorization'))
+                .replace('authorization=', '');
+        }
+        let token;
+        if (
+            req.headers.authorization &&
+            req.headers.authorization.startsWith('Bearer')
+        )
+            token = req.headers.authorization.split(' ')[1];
 
-    if (!token) {
-        return next(new AppError('You are not logged in', 401));
-    }
+        if (!token && !skipAuth) {
+            return next(new AppError('You are not logged in', 401));
+        }
 
-    const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+        const decoded = await promisify(jwt.verify)(
+            token,
+            process.env.JWT_SECRET
+        );
 
-    const freshUser = await User.findByPk(decoded.id);
-    if (!freshUser || !freshUser.login) {
-        return next(new AppError('This user was deleted', 401));
-    }
+        const freshUser = await User.findByPk(decoded.id);
+        if ((!freshUser || !freshUser.login) && !skipAuth) {
+            return next(new AppError('This user was deleted', 401));
+        }
 
-    req.user = freshUser;
-    next();
-});
+        req.user = freshUser;
+        next();
+    });
