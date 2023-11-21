@@ -1,4 +1,4 @@
-const { Favorite, Post, User } = require('../models/relationships');
+const { Favorite, Post } = require('../models/relationships');
 const catchAsync = require('../utils/catchAsync');
 exports.getAll = catchAsync(async (req, res) => {
     try {

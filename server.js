@@ -6,6 +6,7 @@ const cleanUp = require('./utils/cleanUp');
 
 cleanUp.cleanResetTokens();
 cleanUp.cleanUnusedAvatars();
+
 process.on('uncaughtException', (err) => {
     console.log('unchaughtException!! Shutting down server...');
     console.log(err.name, err.message);

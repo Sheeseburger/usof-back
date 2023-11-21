@@ -1,6 +1,5 @@
-const { Post, Comment, Category, Like } = require('../models/relationships');
+const { Post, Category } = require('../models/relationships');
 
-const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
 
 const factory = require('./factoryController');

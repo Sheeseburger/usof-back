@@ -1,11 +1,10 @@
 // const bcrypt = require('bcrypt');
 const { promisify } = require('util');
-
+const { Op } = require('sequelize');
+const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
-const crypto = require('crypto');
-const { Op } = require('sequelize');
-const bcrypt = require('bcrypt');
+
 const { User, ResetPwdToken } = require('../models/relationships');
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');

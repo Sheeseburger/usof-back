@@ -29,8 +29,8 @@ app.use('/api/categories', categoryRoutes);
 app.use('/api/comments', commentRoutes);
 app.use('/admin', AdminRoutes);
 app.use('/api/favorite', favoriteRoutes);
-// app.all('*', (req, res, next) => {
-//     next(new AppError(`Can't find ${req.originalUrl} on this server :#`, 404));
-// });
+app.all('*', (req, res, next) => {
+    next(new AppError(`Can't find ${req.originalUrl} on this server :#`, 404));
+});
 
 module.exports = app;

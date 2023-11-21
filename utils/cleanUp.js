@@ -1,6 +1,7 @@
 const { Op } = require('sequelize');
 const fs = require('fs/promises');
 const path = require('path');
+
 const { User, ResetPwdToken } = require('../models/relationships');
 
 exports.cleanResetTokens = () => {

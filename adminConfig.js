@@ -1,7 +1,6 @@
 const AdminJS = require('adminjs');
 const AdminJSExpress = require('@adminjs/express');
 const AdminJSSequelize = require('@adminjs/sequelize');
-const uploadFeature = require('@adminjs/upload');
 
 const {
     User,
