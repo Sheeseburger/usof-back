@@ -1,6 +1,12 @@
 const { Op } = require('sequelize');
 const sequelize = require('../db');
-const { Post, Comment, Category, Like } = require('../models/relationships');
+const {
+    Post,
+    Comment,
+    Category,
+    Like,
+    User,
+} = require('../models/relationships');
 
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
@@ -163,6 +169,13 @@ exports.createLike = catchAsync(async (req, res, next) => {
         authorId: req.user.id,
         postId: req.params.post_id,
     });
+    const post = await Post.findByPk(req.params.post_id);
+    const postAuthor = await User.findByPk(post.authorId);
+    if (like.type === 'like') {
+        postAuthor.rating += 1;
+    } else postAuthor.rating -= 1;
+
+    await postAuthor.save();
 
     res.status(201).json({
         message: 'success',
@@ -197,9 +210,19 @@ exports.updatePost = catchAsync(async (req, res, next) => {
 exports.deletePost = factory.deleteOne(Post);
 
 exports.deleteLike = catchAsync(async (req, res, next) => {
-    await Like.destroy({
+    const like = await Like.findOne({
         where: { postId: req.params.post_id, authorId: req.user.id },
     });
+    if (!like) return res.status(400).json({ message: 'like dosnt exists :(' });
+    const post = await Post.findByPk(req.params.post_id);
+    const postAuthor = await User.findByPk(post.authorId);
+    if (like.type === 'like') {
+        postAuthor.rating -= 1;
+    } else postAuthor.rating += 1;
+
+    await postAuthor.save();
+
+    await like.destroy();
 
     res.status(204).send();
 });
