@@ -6,8 +6,8 @@ const sequelize = new Sequelize('usof', 'monyshchen', 'securepass', {
 });
 
 sequelize
-    // .sync({ alter: true })
-    .authenticate()
+    .sync({ alter: true })
+    // .authenticate()
     .then(() => {
         console.log('Database connection has been established successfully.');
         // addStarWarsCards();

@@ -26,11 +26,15 @@ const authenticate = async (email, password) => {
     if (email === DEFAULT_ADMIN.email && password === DEFAULT_ADMIN.password) {
         return Promise.resolve(DEFAULT_ADMIN);
     } else {
-        const user = await User.findOne({ where: { email, role: 'admin' } });
-        console.log(user);
-        console.log(await user.verifyPassword(password), password);
-        if (user && (await user.verifyPassword(password))) {
-            return Promise.resolve({ email, password });
+        try {
+            const user = await User.findOne({
+                where: { email, role: 'admin' },
+            });
+            if (user && (await user.verifyPassword(password))) {
+                return Promise.resolve({ email, password });
+            }
+        } catch (error) {
+            return null;
         }
     }
     return null;
